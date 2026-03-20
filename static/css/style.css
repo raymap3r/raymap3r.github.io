@@ -445,13 +445,13 @@ footer {
 
 /* --- Hero TL;DR --- */
 .hero-tldr {
-    text-align: center; font-size: 1.08rem;
+    text-align: center; font-size: 1.25rem;
     color: var(--text-secondary); margin: 20px auto 0;
     max-width: 1060px; padding: 0 24px;
     line-height: 1.65;
 }
 .hero-tldr strong {
-    color: var(--accent-static); font-weight: 600; letter-spacing: 0.5px;
+    color: var(--accent-static); font-weight: 600; letter-spacing: 2px;
 }
 
 /* --- Section lead text --- */
