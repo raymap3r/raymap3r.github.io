@@ -29,6 +29,7 @@ body {
     color: var(--text-primary);
     line-height: 1.7;
     overflow-x: hidden;
+    zoom: 0.95;
 }
 a { color: var(--accent-static); text-decoration: none; transition: color 0.2s; }
 a:hover { color: var(--accent-dynamic); }
