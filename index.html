@@ -177,11 +177,17 @@
 
             <div class="tabs" id="demo-tabs">
                 <div class="tab-bar">
-                    <button class="tab-btn active" data-tab="demo-car">Car-Turn</button>
+                    <button class="tab-btn active" data-tab="demo-overview">Overview</button>
+                    <button class="tab-btn" data-tab="demo-car">Car-Turn</button>
                     <button class="tab-btn" data-tab="demo-bear">Bear</button>
-                    <button class="tab-btn" data-tab="demo-more">More Scenes</button>
                 </div>
-                <div class="tab-content active" id="demo-car">
+                <div class="tab-content active" id="demo-overview">
+                    <div class="glass-card">
+                        <img src="static/images/qualitative.png" alt="Qualitative comparison on DAVIS">
+                        <p class="figure-caption">From top to bottom: sequences with dynamic animals, human motion, and a moving boat. RayMap3R preserves fine-grained details such as legible text on the boat surface, where baselines produce collapsed or blurred geometry.</p>
+                    </div>
+                </div>
+                <div class="tab-content" id="demo-car">
                     <div class="glass-card video-single">
                         <video autoplay muted loop playsinline><source src="static/videos/car_turn.mp4" type="video/mp4"></video>
                     </div>
@@ -189,12 +195,6 @@
                 <div class="tab-content" id="demo-bear">
                     <div class="glass-card video-single">
                         <video autoplay muted loop playsinline><source src="static/videos/bear.mp4" type="video/mp4"></video>
-                    </div>
-                </div>
-                <div class="tab-content" id="demo-more">
-                    <div class="glass-card">
-                        <img src="static/images/qualitative.png" alt="Qualitative comparison on DAVIS">
-                        <p class="figure-caption">From top to bottom: sequences with dynamic animals, human motion, and a moving boat. RayMap3R preserves fine-grained details such as legible text on the boat surface, where baselines produce collapsed or blurred geometry.</p>
                     </div>
                 </div>
             </div>
