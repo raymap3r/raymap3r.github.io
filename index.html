@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RayMap3R: A training-free streaming framework for dynamic 3D scene reconstruction using inference-time RayMap.">
+    <title>RayMap3R: Inference-Time RayMap for Dynamic 3D Reconstruction</title>
+    <link rel="icon" type="image/svg+xml" href="static/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+    <!-- Animated Background -->
+    <div class="ray-field"></div>
+    <div class="ray-lines">
+        <div class="ray ray-1"></div>
+        <div class="ray ray-2"></div>
+        <div class="ray ray-3"></div>
+        <div class="ray ray-4"></div>
+        <div class="ray ray-5"></div>
+        <div class="ray ray-6"></div>
+    </div>
+    <canvas id="grid-canvas"></canvas>
+
+    <!-- Navigation -->
+    <header>
+        <div class="logo">RayMap3R</div>
+        <nav>
+            <a href="#abstract">Abstract</a>
+            <a href="#static-bias">Static Bias</a>
+            <a href="#method">Method</a>
+            <a href="#results">Results</a>
+            <a href="#citation">Cite</a>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="title-container">
+                <h1><span class="highlight">RayMap3R</span>: Inference-Time RayMap<br>for Dynamic 3D Reconstruction</h1>
+            </div>
+
+            <div class="authors">
+                <span class="author"><a href="https://brack-wang.github.io/" target="_blank">Feiran Wang</a><sup>1</sup></span>
+                <span class="author"><a href="https://www.linkedin.com/in/zezhou-shang/" target="_blank">Zezhou Shang</a><sup>1</sup></span>
+                <span class="author"><a href="https://scholar.google.com/citations?user=NIv_aeQAAAAJ&hl=en" target="_blank">Gaowen Liu</a><sup>2</sup></span>
+                <span class="author"><a href="https://tomyan555.github.io/" target="_blank">Yan Yan</a><sup>1</sup></span>
+            </div>
+            <div class="affiliations">
+                <span><sup>1</sup>University of Illinois Chicago</span>
+                <span><sup>2</sup>Cisco Research</span>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="javascript:void(0)" class="btn btn-secondary" title="Coming soon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+                    arXiv
+                </a>
+                <a href="javascript:void(0)" class="btn btn-secondary" title="Coming soon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                    Paper
+                </a>
+                <a href="https://github.com/Brack-Wang/raymap3r" class="btn btn-secondary" target="_blank">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                    Code
+                </a>
+            </div>
+
+            <p class="hero-tldr"><strong>TL;DR</strong>&ensp;A training-free dual-branch scheme that exploits RayMap's static-scene bias for dynamic-aware streaming 3D reconstruction.</p>
+        </div>
+    </section>
+
+    <!-- Teaser -->
+    <section class="teaser reveal">
+        <div class="container">
+            <div class="glass-card">
+                <img src="static/images/teaser.png" alt="RayMap3R teaser: streaming 3D reconstruction comparison">
+                <p class="figure-caption">
+                    <strong>Streaming 3D Reconstruction for Dynamic Scenes.</strong>
+                    Existing streaming methods such as CUT3R and TTT3R can suffer from <span class="accent-dynamic">camera drift</span> caused by moving objects.
+                    RayMap3R identifies and suppresses dynamic regions at inference time without additional training or external models, producing more stable trajectories and geometrically faithful reconstruction.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Abstract -->
+    <section id="abstract" class="reveal">
+        <div class="container">
+            <h2 class="section-title">Abstract</h2>
+            <div class="abstract-card glass-card">
+                <p class="abstract-text">
+                    Streaming feed-forward 3D reconstruction enables real-time joint estimation of scene geometry and camera poses from RGB images. However, without explicit dynamic reasoning, streaming models can be affected by moving objects, causing artifacts and drift. In this work, we propose <strong>RayMap3R</strong>, a training-free streaming framework for dynamic scene reconstruction. We observe that RayMap-based predictions exhibit a <span class="accent-static">static-scene bias</span>, providing an internal cue for dynamic identification. Based on this observation, we construct a <span class="accent-dynamic">dual-branch inference scheme</span> that identifies dynamic regions by contrasting RayMap and image predictions, suppressing their interference during memory updates. We further introduce reset metric alignment and state-aware smoothing to preserve metric consistency and stabilize predicted trajectories. Our method achieves <strong>leading performance</strong> among streaming approaches on dynamic scene reconstruction across multiple benchmarks.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Static-Scene Bias of RayMap (NEW section) -->
+    <section id="static-bias" class="reveal">
+        <div class="container">
+            <h2 class="section-title">Static-Scene Bias of RayMap</h2>
+
+            <p class="section-lead">
+                We observe that when only camera rays (RayMap) are provided as input, without the actual image, the model tends to reconstruct <strong>only the static background</strong> and ignore dynamic objects. This bias provides a built-in signal for dynamic identification.
+            </p>
+
+            <!-- Visual evidence with toggle -->
+            <div class="toggle-group">
+                <button class="toggle-btn active" data-target="img-sintel-davis">Sintel &amp; DAVIS</button>
+                <button class="toggle-btn" data-target="img-more-scenes">Cross-Dataset</button>
+            </div>
+            <div class="toggle-content active" id="img-sintel-davis">
+                <div class="glass-card">
+                    <img src="static/images/raymap_compare.png" alt="Static bias across Sintel and DAVIS">
+                    <p class="figure-caption">
+                        The RayMap branch reconstructs primarily static structure, while the main branch captures the full scene including dynamic objects. Their per-pixel depth discrepancy aligns well with the ground-truth dynamic mask.
+                    </p>
+                </div>
+            </div>
+            <div class="toggle-content" id="img-more-scenes">
+                <div class="glass-card">
+                    <img src="static/images/ablation.png" alt="Extended dynamic identification across datasets">
+                    <p class="figure-caption">
+                        The same pattern holds across diverse scenes including animals, vehicles, and pedestrians, showing that the static-scene bias is not limited to specific object types.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Concept + quantitative -->
+            <p class="section-lead" style="margin-top: 24px;">
+                We exploit this bias through a <strong>dual-branch inference</strong> scheme that contrasts the main branch (image + RayMap) with the RayMap-only branch. The per-pixel depth discrepancy yields a dynamic map that serves as a proxy for dynamic content identification.
+            </p>
+
+            <div class="glass-card">
+                <img src="static/images/illustrate.png" alt="Dual-branch concept and IoU analysis">
+                <p class="figure-caption">
+                    <strong>Left:</strong> Dual-branch contrast: the depth difference reveals dynamic regions.
+                    <strong>Right:</strong> Dynamic mask IoU versus ground-truth dynamic ratio across 108 sequences from MPI Sintel, DAVIS 2017, and TUM RGB-D (Spearman &rho; = 0.77). Scenes with higher dynamic content yield stronger detection signals.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Method -->
+    <section id="method" class="reveal">
+        <div class="container">
+            <h2 class="section-title">Method</h2>
+            <div class="glass-card pipeline-card">
+                <img src="static/images/pipeline.png" alt="RayMap3R pipeline overview">
+                <p class="figure-caption">
+                    <strong>Pipeline Overview.</strong>
+                    At each timestep, the <span class="accent-dynamic">main branch</span> predicts depth and pose from both image and RayMap features, while the <span class="accent-static">RayMap branch</span> queries the same frozen state using only camera-ray tokens. The per-pixel depth discrepancy between branches is projected onto state tokens via cross-attention to form <span class="accent-green">staticness weights</span>, which gate memory updates (s<sub>t</sub> = s<sub>t-1</sub> + &alpha;<sub>t</sub> &odot; &Delta;s<sub>t</sub>). Reset metric alignment and state-aware smoothing further stabilize the output trajectory.
+                </p>
+            </div>
+
+            <ul class="method-list">
+                <li><strong>Dual-Branch Inference.</strong> Each frame is processed with and without its image. The depth discrepancy produces a staticness weight map that down-weights dynamic regions in memory updates.</li>
+                <li><strong>Reset Metric Alignment.</strong> Aligns point clouds from the repeated frame before and after each memory reset via Sim(3) estimation, correcting scale and pose discontinuities to maintain globally consistent geometry.</li>
+                <li><strong>State-Aware Smoothing.</strong> Adaptively smooths the predicted trajectory using the product of trajectory acceleration and internal state change magnitude as an uncertainty signal, filtering noisy predictions while preserving stable motion estimates.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Results -->
+    <section id="results" class="reveal">
+        <div class="container">
+            <h2 class="section-title">Results</h2>
+
+            <!-- Qualitative Comparison -->
+            <h3 class="sub-title">Qualitative Comparison</h3>
+            <p class="section-desc">We compare 3D reconstruction quality with CUT3R and TTT3R on dynamic DAVIS sequences. RayMap3R produces more coherent point clouds with fewer ghosting artifacts and reduced camera drift, as suppressing dynamic content prevents corrupted geometry from accumulating in the memory state.</p>
+
+            <div class="tabs" id="demo-tabs">
+                <div class="tab-bar">
+                    <button class="tab-btn active" data-tab="demo-car">Car-Turn</button>
+                    <button class="tab-btn" data-tab="demo-bear">Bear</button>
+                    <button class="tab-btn" data-tab="demo-more">More Scenes</button>
+                </div>
+                <div class="tab-content active" id="demo-car">
+                    <div class="glass-card video-single">
+                        <video autoplay muted loop playsinline><source src="static/videos/car_turn.mp4" type="video/mp4"></video>
+                    </div>
+                </div>
+                <div class="tab-content" id="demo-bear">
+                    <div class="glass-card video-single">
+                        <video autoplay muted loop playsinline><source src="static/videos/bear.mp4" type="video/mp4"></video>
+                    </div>
+                </div>
+                <div class="tab-content" id="demo-more">
+                    <div class="glass-card">
+                        <img src="static/images/qualitative.png" alt="Qualitative comparison on DAVIS">
+                        <p class="figure-caption">From top to bottom: sequences with dynamic animals, human motion, and a moving boat. RayMap3R preserves fine-grained details such as legible text on the boat surface, where baselines produce collapsed or blurred geometry.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Identification Visualization -->
+            <h3 class="sub-title" >Dynamic Identification Visualization</h3>
+            <p class="section-desc">Frame-by-frame visualization of the dual-branch contrast on the DAVIS longboard sequence. The dynamic map maintains <strong>spatial consistency</strong> across consecutive frames without explicit temporal smoothing, tracking moving subjects as their position and apparent scale change.</p>
+            <div class="glass-card video-single">
+                <video autoplay muted loop playsinline><source src="static/videos/static_bias.mp4" type="video/mp4"></video>
+            </div>
+
+            <!-- Quantitative Results -->
+            <h3 class="sub-title" >Quantitative Evaluation</h3>
+            <p class="section-desc">We evaluate RayMap3R on camera pose estimation, video depth estimation, and 3D reconstruction across multiple benchmarks. Among streaming (online) methods, RayMap3R achieves the lowest ATE on all three pose benchmarks and the lowest Abs Rel on KITTI and Bonn, while maintaining real-time efficiency and constant memory usage.</p>
+
+            <div class="tabs" id="table-tabs">
+                <div class="tab-bar">
+                    <button class="tab-btn active" data-tab="tab-pose">Camera Pose</button>
+                    <button class="tab-btn" data-tab="tab-depth">Video Depth</button>
+                    <button class="tab-btn" data-tab="tab-3d">3D Reconstruction</button>
+                </div>
+                <div class="tab-content active" id="tab-pose">
+                    <img src="static/images/camera_pose.jpg" alt="Camera pose estimation" class="table-img">
+                    <p class="figure-caption">Camera pose estimation (ATE, RPE) on Sintel, TUM-dynamics, and ScanNet.</p>
+                </div>
+                <div class="tab-content" id="tab-depth">
+                    <img src="static/images/video_depth.jpg" alt="Video depth estimation" class="table-img">
+                    <p class="figure-caption">Video depth estimation on KITTI, BONN, and Sintel.</p>
+                </div>
+                <div class="tab-content" id="tab-3d">
+                    <img src="static/images/3d_reconstruction.jpg" alt="3D reconstruction" class="table-img">
+                    <p class="figure-caption">3D reconstruction quality (Acc, Comp, NC, Chamfer) on 7-Scenes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BibTeX -->
+    <section id="citation" class="reveal">
+        <div class="container">
+            <h2 class="section-title">BibTeX</h2>
+            <div class="citation-box glass-card">
+                <pre><code id="bib-content">@article{wang2026raymap3r,
+  title   = {RayMap3R: Inference-Time RayMap for Dynamic 3D Reconstruction},
+  author  = {Wang, Feiran and Shang, Zezhou and Liu, Gaowen and Yan, Yan},
+  year    = {2026}
+}</code></pre>
+                <button class="copy-btn" onclick="copyBib()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span>Copy</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://brack-wang.github.io/" target="_blank">Feiran Wang</a>
+                <span class="dot">&middot;</span>
+                <span>University of Illinois Chicago</span>
+            </div>
+            <p class="footer-copy">RayMap3R &copy; 2026</p>
+        </div>
+    </footer>
+
+    <script>
+        // ===== Copy BibTeX =====
+        function copyBib() {
+            const bib = document.getElementById('bib-content').textContent;
+            navigator.clipboard.writeText(bib).then(() => {
+                const btn = document.querySelector('.copy-btn span');
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+            });
+        }
+
+        // ===== Tab switching =====
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabs = btn.closest('.tabs');
+                tabs.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                tabs.querySelectorAll('.tab-content').forEach(c => {
+                    c.classList.remove('active');
+                    const v = c.querySelector('video');
+                    if (v) { v.pause(); v.currentTime = 0; }
+                });
+                btn.classList.add('active');
+                const target = tabs.querySelector('#' + btn.dataset.tab);
+                target.classList.add('active');
+                const vid = target.querySelector('video');
+                if (vid) vid.play();
+            });
+        });
+
+        // ===== Toggle buttons (Static Bias figures) =====
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const section = btn.closest('section') || btn.closest('.container');
+                section.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                section.querySelectorAll('.toggle-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.target).classList.add('active');
+            });
+        });
+
+        // ===== Scroll Reveal =====
+        (function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                    }
+                });
+            }, { threshold: 0.08 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        })();
+
+        // ===== Background Grid Canvas =====
+        (function() {
+            const canvas = document.getElementById('grid-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let w, h;
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize);
+
+            let time = 0;
+            function draw() {
+                ctx.clearRect(0, 0, w, h);
+                const alpha = 0.04;
+                const color = '0,80,100';
+                const spacing = 60;
+                for (let x = 0; x < w; x += spacing) {
+                    const wave = Math.sin((x + time * 0.3) * 0.01) * 8;
+                    ctx.beginPath();
+                    ctx.moveTo(x + wave, 0);
+                    ctx.lineTo(x - wave, h);
+                    ctx.strokeStyle = `rgba(${color}, ${alpha * (0.5 + 0.5 * Math.sin(x * 0.02 + time * 0.01))})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+                for (let y = 0; y < h; y += spacing) {
+                    const wave = Math.sin((y + time * 0.2) * 0.015) * 6;
+                    ctx.beginPath();
+                    ctx.moveTo(0, y + wave);
+                    ctx.lineTo(w, y - wave);
+                    ctx.strokeStyle = `rgba(${color}, ${alpha * (0.3 + 0.3 * Math.sin(y * 0.015 + time * 0.008))})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                }
+                time++;
+                requestAnimationFrame(draw);
+            }
+            draw();
+        })();
+
+        // ===== Smooth Nav Scroll =====
+        document.querySelectorAll('nav a').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
